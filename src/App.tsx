@@ -12,15 +12,18 @@ import { ClientHome, ClientMenu, ClientOrders, ClientProfile } from "./modules/c
 // Admin imports
 import AdminLayout from "./modules/admin/layouts/AdminLayout";
 import { AdminDashboard, AdminOrders } from "./modules/admin/pages";
+import Home from "./pages/HomePage";
 
-// Componente para redirección automática basada en rol
-function RoleBasedRedirect() {
+// Componente para mostrar Home o redirigir según autenticación
+function HomeOrRedirect() {
   const { isAuthenticated, isClient, isAdmin } = useAuth();
 
+  // Si no está autenticado, mostrar la página Home como informativa
   if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
+    return <Home />;
   }
 
+  // Si está autenticado, redirigir según el rol
   if (isClient()) {
     return <Navigate to="/client" replace />;
   }
@@ -37,8 +40,8 @@ export default function App() {
     <AuthProvider>
       <div className="min-h-screen">
         <Routes>
-          {/* Ruta raíz - redirige según el rol */}
-          <Route path="/" element={<RoleBasedRedirect />} />
+          {/* Ruta raíz - Home informativo o redirección según autenticación */}
+          <Route path="/" element={<HomeOrRedirect />} />
           
           {/* Login */}
           <Route path="/login" element={<Login />} />
