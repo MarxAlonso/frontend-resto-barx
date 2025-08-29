@@ -37,8 +37,8 @@ export default function ContactSection() {
               <div className="text-4xl mb-4">📞</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Contacto</h3>
               <p className="text-gray-600">
-                +51 123 456 789<br />
-                info@toritogrill.com
+                +51 923 456 789<br />
+                info@restobarx.com
               </p>
             </div>
           </div>
