@@ -32,19 +32,19 @@ const NavbarSection: React.FC = () => {
             <div className="ml-10 flex items-baseline space-x-4">
               <button
                 onClick={() => scrollToSection('menu')}
-                className="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-700 cursor-pointer hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Menú
               </button>
               <button
                 onClick={() => scrollToSection('about')}
-                className="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-700 cursor-pointer hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Nosotros
               </button>
               <button
                 onClick={() => scrollToSection('contact')}
-                className="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-700 cursor-pointer hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Contacto
               </button>
