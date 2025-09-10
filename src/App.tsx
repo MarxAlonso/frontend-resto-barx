@@ -48,7 +48,7 @@ export default function App() {
           
           {/* Rutas del Cliente */}
           <Route path="/client" element={
-            <ProtectedRoute requiredRole="client">
+            <ProtectedRoute requiredRole="CLIENT">
               <ClientLayout />
             </ProtectedRoute>
           }>
@@ -60,7 +60,7 @@ export default function App() {
           
           {/* Rutas del Admin */}
           <Route path="/admin" element={
-            <ProtectedRoute requiredRole="admin">
+            <ProtectedRoute requiredRole="ADMIN">
               <AdminLayout />
             </ProtectedRoute>
           }>

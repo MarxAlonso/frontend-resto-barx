@@ -70,61 +70,58 @@ api.interceptors.response.use(
   }
 );
 
-// Funciones de utilidad para simular respuestas cuando el backend no esté disponible
-export const mockResponses = {
-  // Simular login exitoso para desarrollo
-  mockLogin: (email: string, password: string) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email === 'admin@toritogrill.com' && password === 'admin123') {
-          resolve({
-            data: {
-              token: 'mock-jwt-token-' + Date.now(),
-              user: {
-                id: 1,
-                name: 'Administrador',
-                email: 'admin@toritogrill.com',
-                role: 'admin'
-              }
-            }
-          });
-        }
-        if (email === 'cliente@toritogrill.com' && password === 'cliente123') {
-          resolve({
-            data: {
-              token: 'mock-jwt-token-' + Date.now(),
-              user: {
-                id: 1,
-                name: 'Cliente',
-                email: 'cliente@toritogrill.com',
-                role: 'client'
-              }
-            }
-          });
-        } else {
-          reject({
-            response: {
-              status: 401,
-              data: { message: 'Credenciales incorrectas' }
-            }
-          });
-        }
-      }, 1500); // Simular delay de red
-    });
+// Funciones de la API para el backend de Spring Boot
+export const authAPI = {
+  // Login de usuario
+  login: async (email: string, password: string) => {
+    const response = await api.post('/auth/login', { email, password });
+    return response.data;
   },
   
-  // Simular obtener menú
-  mockGetMenu: () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: {
-            menu: [], // Se usará el menú local de menu.ts
-            message: 'Menú obtenido exitosamente'
-          }
-        });
-      }, 1000);
-    });
+  // Registro de usuario
+  register: async (userData: { name: string; email: string; password: string; role?: string }) => {
+    const response = await api.post('/auth/register', userData);
+    return response.data;
+  },
+  
+  // Verificar token
+  verifyToken: async () => {
+    const response = await api.get('/auth/verify');
+    return response.data;
+  }
+};
+
+export const menuAPI = {
+  // Obtener menú
+  getMenu: async () => {
+    const response = await api.get('/menu');
+    return response.data;
+  }
+};
+
+export const orderAPI = {
+  // Crear orden
+  createOrder: async (orderData: any) => {
+    const response = await api.post('/orders', orderData);
+    return response.data;
+  },
+  
+  // Obtener órdenes del usuario
+  getUserOrders: async () => {
+    const response = await api.get('/orders/user');
+    return response.data;
+  },
+  
+  // Obtener todas las órdenes (admin)
+  getAllOrders: async () => {
+    const response = await api.get('/orders');
+    return response.data;
+  },
+  
+  // Actualizar estado de orden (admin)
+  updateOrderStatus: async (orderId: number, status: string) => {
+    const response = await api.put(`/orders/${orderId}/status`, { status });
+    return response.data;
   }
 };
 
@@ -134,8 +131,8 @@ export const checkBackendHealth = async (): Promise<boolean> => {
     await api.get('/health', { timeout: 3000 });
     return true;
   } catch (error) {
-    console.warn('🏥 Backend health check failed:', error);
-    return false;
+    console.error('🏥 Backend no disponible:', error);
+    throw new Error('El servidor backend no está disponible. Asegúrate de que esté ejecutándose en http://localhost:8089');
   }
 };
 

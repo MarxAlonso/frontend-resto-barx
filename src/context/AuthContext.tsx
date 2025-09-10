@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
-import { api, mockResponses, checkBackendHealth, type LoginResponse } from '../services/api';
+import { authAPI, checkBackendHealth, type LoginResponse } from '../services/api';
 
 interface User {
   id: string;
@@ -51,12 +51,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
         
-        // Verificar si el backend está disponible
-        const isBackendAvailable = await checkBackendHealth();
-        setIsOfflineMode(!isBackendAvailable);
-        
-        if (!isBackendAvailable) {
-          console.warn('🔄 Modo offline activado - usando datos locales');
+        try {
+          // Verificar que el backend esté disponible y el token sea válido
+          await checkBackendHealth();
+          await authAPI.verifyToken();
+          setIsOfflineMode(false);
+          console.log('✅ Token válido y backend disponible');
+        } catch (error) {
+          console.error('❌ Token inválido o backend no disponible:', error);
+          // Limpiar datos si el token no es válido
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+          setIsOfflineMode(true);
         }
       }
     } catch (error) {
@@ -64,6 +72,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Limpiar datos corruptos
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      setToken(null);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -73,36 +83,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     
     try {
-      // Primero verificar si el backend está disponible
-      const isBackendAvailable = await checkBackendHealth();
+      // Verificar que el backend esté disponible
+      await checkBackendHealth();
+      setIsOfflineMode(false);
       
-      let response: { data: LoginResponse };
+      // Usar API del backend de Spring Boot
+      const response = await authAPI.login(email, password);
       
-      if (isBackendAvailable) {
-        // Usar API real
-        response = await api.post<LoginResponse>('/auth/login', { email, password });
-        setIsOfflineMode(false);
-      } else {
-        // Usar respuesta mock
-        console.warn('🔄 Backend no disponible - usando login mock');
-        const mockResponse = await mockResponses.mockLogin(email, password) as { data: LoginResponse };
-        response = mockResponse;
-        setIsOfflineMode(true);
-      }
-      
-      const { token: newToken, user: newUser } = response.data;
-      
-      // Determinar rol basado en el email si no viene del backend
-      if (!newUser.role) {
-        newUser.role = email.includes('admin') ? 'admin' : 'client';
-      }
+      const { token: newToken, user: newUser } = response;
       
       // Crear usuario con el tipo correcto
       const userWithCorrectType: User = {
         id: String(newUser.id),
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role as 'client' | 'admin'
+        role: newUser.role as 'CLIENT' | 'ADMIN'
       };
       
       // Guardar en localStorage
@@ -134,28 +129,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     
     try {
-      const isBackendAvailable = await checkBackendHealth();
+      // Verificar que el backend esté disponible
+      await checkBackendHealth();
+      setIsOfflineMode(false);
       
-      let response: { data: LoginResponse };
+      // Usar API del backend de Spring Boot
+      const response = await authAPI.login(email, password);
       
-      if (isBackendAvailable) {
-        response = await api.post<LoginResponse>('/auth/login', { email, password, role: 'client' });
-        setIsOfflineMode(false);
-      } else {
-        console.warn('🔄 Backend no disponible - usando login mock de cliente');
-        const mockResponse = await mockResponses.mockLogin(email, password) as { data: LoginResponse };
-        response = mockResponse;
-        setIsOfflineMode(true);
+      const { token: newToken, user: newUser } = response;
+      
+      // Verificar que el usuario sea cliente
+      if (newUser.role !== 'CLIENT') {
+        return {
+          success: false,
+          error: 'Este usuario no tiene permisos de cliente.'
+        };
       }
-      
-      const { token: newToken, user: newUser } = response.data;
       
       // Crear usuario con el tipo correcto
       const userWithCorrectType: User = {
         id: String(newUser.id),
         name: newUser.name,
         email: newUser.email,
-        role: 'client'
+        role: 'CLIENT'
       };
       
       localStorage.setItem('token', newToken);
@@ -184,28 +180,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     
     try {
-      const isBackendAvailable = await checkBackendHealth();
+      // Verificar que el backend esté disponible
+      await checkBackendHealth();
+      setIsOfflineMode(false);
       
-      let response: { data: LoginResponse };
+      // Usar API del backend de Spring Boot
+      const response = await authAPI.login(email, password);
       
-      if (isBackendAvailable) {
-        response = await api.post<LoginResponse>('/auth/login', { email, password, role: 'admin' });
-        setIsOfflineMode(false);
-      } else {
-        console.warn('🔄 Backend no disponible - usando login mock de administrador');
-        const mockResponse = await mockResponses.mockLogin(email, password) as { data: LoginResponse };
-        response = mockResponse;
-        setIsOfflineMode(true);
+      const { token: newToken, user: newUser } = response;
+      
+      // Verificar que el usuario sea administrador
+      if (newUser.role !== 'ADMIN') {
+        return {
+          success: false,
+          error: 'Este usuario no tiene permisos de administrador.'
+        };
       }
-      
-      const { token: newToken, user: newUser } = response.data;
       
       // Crear usuario con el tipo correcto
       const userWithCorrectType: User = {
         id: String(newUser.id),
         name: newUser.name,
         email: newUser.email,
-        role: 'admin'
+        role: 'ADMIN'
       };
       
       localStorage.setItem('token', newToken);
@@ -248,11 +245,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const isClient = () => {
-    return user?.role === 'client';
+    return user?.role === 'CLIENT';
   };
 
   const isAdmin = () => {
-    return user?.role === 'admin';
+    return user?.role === 'ADMIN';
   };
 
   const value: AuthContextType = {
