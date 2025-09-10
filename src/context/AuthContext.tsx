@@ -5,7 +5,8 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'client' | 'admin';
+  phone?: string;
+  role: 'CLIENT' | 'ADMIN';
 }
 
 export interface AuthContextType {
@@ -13,6 +14,7 @@ export interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isOfflineMode: boolean;
+  setUser: (user: User | null) => void;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginAsClient: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginAsAdmin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -22,6 +24,7 @@ export interface AuthContextType {
   isClient: () => boolean;
   isAdmin: () => boolean;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -97,6 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: String(newUser.id),
         name: newUser.name,
         email: newUser.email,
+        phone: newUser.phone,
         role: newUser.role as 'CLIENT' | 'ADMIN'
       };
       
@@ -151,6 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: String(newUser.id),
         name: newUser.name,
         email: newUser.email,
+        phone: newUser.phone,
         role: 'CLIENT'
       };
       
@@ -257,6 +262,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     token,
     isLoading,
     isOfflineMode,
+    setUser,
     login,
     loginAsClient,
     loginAsAdmin,

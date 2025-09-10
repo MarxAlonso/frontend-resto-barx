@@ -136,6 +136,13 @@ export const checkBackendHealth = async (): Promise<boolean> => {
   }
 };
 
+export const userAPI = {
+  updateProfile: async (userId: number, data: { name: string; phone: string }) => {
+    const response = await api.put(`/users/${userId}`, data);
+    return response.data;
+  }
+};
+
 // Tipos para las respuestas de la API
 export interface ApiResponse<T = unknown> {
   data: T;
