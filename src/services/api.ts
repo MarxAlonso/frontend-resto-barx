@@ -101,9 +101,16 @@ export const menuAPI = {
 
 export const orderAPI = {
   // Crear orden
-  createOrder: async (orderData: any) => {
+  createOrder: async (orderData: {
+    userId: number;
+    items: Array<{
+      menuId: number;
+      quantity: number;
+    }>;
+    totalPrice: number;
+  }) => {
     const response = await api.post('/orders', orderData);
-    return response.data;
+    return response.data as ApiResponse<{ orderId: number }>;
   },
   
   // Obtener órdenes del usuario

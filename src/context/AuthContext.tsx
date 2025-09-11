@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
-import { authAPI, checkBackendHealth, type LoginResponse } from '../services/api';
+import { authAPI, checkBackendHealth } from '../services/api';
 
 interface User {
   id: string;
