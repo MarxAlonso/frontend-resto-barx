@@ -150,6 +150,21 @@ export const userAPI = {
   }
 };
 
+// Llamando al menu por la api
+export interface MenuItem {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: {
+    id: number;
+    name: string;
+  };
+  imageUrl?: string;
+}
+
+
+
 // Tipos para las respuestas de la API
 export interface ApiResponse<T = unknown> {
   data: T;
