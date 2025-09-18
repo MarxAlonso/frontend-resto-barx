@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
+import { useEffect, useState } from 'react';
+import { menuAPI, MenuItem } from '../../../services/api'; //Ruta para llamar al api y las funciones del menuplatillo
 
 export default function ClientHome() {
   const { user } = useAuth();
+  const [featured, setFeatured] = useState<MenuItem[]>([]);
 
+  useEffect(() => {
+    menuAPI.getFeatured().then(setFeatured).catch(console.error);
+  }, []);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -77,38 +83,24 @@ export default function ClientHome() {
             Platos Destacados
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-                <span className="text-6xl">🥩</span>
+            {featured.map(item => (
+              <div
+                key={item.id}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="h-48 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                  {item.imageUrl
+                    ? <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />
+                    : <span className="text-6xl">🍽️</span>
+                  }
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-gray-600 mb-4">{item.description}</p>
+                  <p className="text-2xl font-bold text-orange-600">S/ {item.price}</p>
+                </div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Anticucho de Corazón</h3>
-                <p className="text-gray-600 mb-4">Brochetas marinadas en ají panca</p>
-                <p className="text-2xl font-bold text-orange-600">S/ 25.90</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                <span className="text-6xl">🍖</span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Parrilla Mixta</h3>
-                <p className="text-gray-600 mb-4">Selección de carnes para 2 personas</p>
-                <p className="text-2xl font-bold text-orange-600">S/ 45.90</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center">
-                <span className="text-6xl">🍗</span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Pollo a la Brasa</h3>
-                <p className="text-gray-600 mb-4">Medio pollo con especias secretas</p>
-                <p className="text-2xl font-bold text-orange-600">S/ 28.90</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>

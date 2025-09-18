@@ -92,10 +92,16 @@ export const authAPI = {
 };
 
 export const menuAPI = {
-  // Obtener menú
+  // Obtener menú del backend de springboot
   getMenu: async () => {
     const response = await api.get('/menu');
     return response.data;
+  },
+
+  //Aca mostrara los 3 primeros menus
+  getFeatured: async () => {
+    const response = await api.get('/menu/featured');
+    return response.data; // Devuelve MenuItem[]
   }
 };
 
