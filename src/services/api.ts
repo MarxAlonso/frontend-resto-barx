@@ -106,7 +106,7 @@ export const menuAPI = {
 };
 
 export const orderAPI = {
-  // Crear orden
+  // Crear orden (pedidos)
   createOrder: async (orderData: {
     userId: number;
     items: Array<{

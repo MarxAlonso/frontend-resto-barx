@@ -16,7 +16,7 @@ export default function MenuSection() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const data = await menuAPI.getMenu(); // llamada a tu backend
+        const data = await menuAPI.getMenu(); // llamada a al backend de springboot
         setMenuItems(data);
       } catch (err: any) {
         console.error(err);
