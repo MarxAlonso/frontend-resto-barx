@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import RegisterForm from "../components/RegisterForm";
-
+import ContactSection from "./HomePage/components/ContactSection"
+import MenuSection from "./HomePage/components/MenuSection"
+import AboutSection from "./HomePage/components/AboutSection"
+import HeroSection from "./HomePage/components/HeroSection"
 export default function HomePage() {
   const [showRegisterForm, setShowRegisterForm] = useState(false);
 
   const handleRegisterSuccess = () => {
     setShowRegisterForm(false);
-    // Opcional: mostrar un mensaje de éxito o redirigir
+    // Mostrar un mensaje de éxito o redirigir
   };
 
   return (
@@ -43,7 +46,7 @@ export default function HomePage() {
           </div>
         </div>
       </header>
-
+      <HeroSection />
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -194,7 +197,9 @@ export default function HomePage() {
           </div>
         </div>
       )}
-
+      <AboutSection />
+      <MenuSection />
+      <ContactSection />
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
