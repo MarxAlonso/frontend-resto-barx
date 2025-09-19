@@ -2,7 +2,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
+import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 // Client imports
@@ -12,7 +14,7 @@ import { ClientHome, ClientMenu, ClientOrders, ClientProfile } from "./modules/c
 // Admin imports
 import AdminLayout from "./modules/admin/layouts/AdminLayout";
 import { AdminDashboard, AdminOrders } from "./modules/admin/pages";
-import Home from "./pages/HomePage";
+
 
 // Componente para mostrar Home o redirigir según autenticación
 function HomeOrRedirect() {
@@ -20,7 +22,7 @@ function HomeOrRedirect() {
 
   // Si no está autenticado, mostrar la página Home como informativa
   if (!isAuthenticated()) {
-    return <Home />;
+    return <HomePage />;
   }
 
   // Si está autenticado, redirigir según el rol
@@ -45,6 +47,9 @@ export default function App() {
           
           {/* Login */}
           <Route path="/login" element={<Login />} />
+          
+          {/* Register */}
+          <Route path="/register" element={<Register />} />
           
           {/* Rutas del Cliente */}
           <Route path="/client" element={
