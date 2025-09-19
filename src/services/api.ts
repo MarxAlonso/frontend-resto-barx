@@ -150,9 +150,20 @@ export const checkBackendHealth = async (): Promise<boolean> => {
 };
 
 export const userAPI = {
-  updateProfile: async (userId: number, data: { name: string; phone: string }) => {
-    const response = await api.put(`/users/${userId}`, data);
-    return response.data;
+  updateProfile: async (userId: number, data: { name?: string; phone?: string; email?: string; isActive?: boolean }) => {
+    const res = await api.put(`/users/${userId}`, data);
+    return res.data;
+  },
+  getClients: async () => {
+    const res = await api.get('/users/clients');
+    return res.data;
+  },
+  createClient: async (data: { name: string; email: string; password: string; phone?: string }) => {
+    const res = await api.post('/users', data);
+    return res.data;
+  },
+  deleteClient: async (id: number) => {
+    await api.delete(`/users/${id}`);
   }
 };
 
