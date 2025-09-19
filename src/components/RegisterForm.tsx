@@ -77,9 +77,9 @@ export default function RegisterForm({ onSuccess, onCancel }: RegisterFormProps)
       const response = await authAPI.register({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-        role: 'client' // Rol automático de cliente
+        password: formData.password
       });
+
 
       console.log('Usuario registrado exitosamente:', response);
       
