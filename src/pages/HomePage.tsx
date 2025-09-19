@@ -38,7 +38,7 @@ export default function HomePage() {
               </Link>
               <button
                 onClick={() => setShowRegisterForm(true)}
-                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
+                className="cursor-pointer bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
               >
                 Registrarse
               </button>
@@ -112,7 +112,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => setShowRegisterForm(true)}
-                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>🎉</span>
                 Crear Cuenta Gratis

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 type Props = { 
   title: string; 
   price: number; 
@@ -49,10 +50,10 @@ export default function MenuCard({ title, price, desc, category, imageUrl }: Pro
         <h3 className="font-bold text-xl text-gray-900 mb-2">{title}</h3>
         <p className="text-gray-600 mb-4 flex-1 leading-relaxed">{desc}</p>
 
-        <button className="w-full py-3 px-4 rounded-xl bg-[color:var(--brand)] text-white font-semibold hover:bg-[color:var(--brand-dark)] transition-colors duration-200 flex items-center justify-center gap-2">
+        <Link to="/login" className="w-full py-3 px-4 rounded-xl bg-[color:var(--brand)] text-white font-semibold hover:bg-[color:var(--brand-dark)] transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer">
           <span>🛒</span>
           Agregar al pedido
-        </button>
+        </Link>
       </div>
     </article>
   );

@@ -35,7 +35,7 @@ export default function MenuSection() {
               className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
                 selectedCategory === category
                   ? "bg-[color:var(--brand)] text-white shadow-lg"
-                  : "bg-white text-gray-700 border border-gray-200 hover:border-[color:var(--brand)] hover:text-[color:var(--brand)]"
+                  : "bg-white text-gray-700 border border-gray-200 hover:border-[color:var(--brand)] hover:text-[color:var(--brand)] cursor-pointer"
               }`}
             >
               {category}
