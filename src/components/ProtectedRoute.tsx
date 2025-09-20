@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'client' | 'admin';
+  requiredRole?: 'CLIENT' | 'ADMIN';
   redirectTo?: string;
 }
 

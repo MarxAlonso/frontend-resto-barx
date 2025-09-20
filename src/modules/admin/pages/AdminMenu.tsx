@@ -1,15 +1,17 @@
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
+import {menuAPI} from '../../../services/api';
 interface MenuItem {
-  id: string;
-  name: string;
+  id: number;
+  title: string;
   description: string;
   price: number;
-  category: string;
-  image: string;
-  available: boolean;
-  preparationTime: number;
+  imageUrl: string;
+  isAvailable: boolean;
+  category: { id: number; name?: string };
+  createdAt?: string;
+  updatedAt?: string;
 }
+
 
 export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,103 +19,82 @@ export default function AdminMenu() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
 
-  // Mock data - en producción vendría del backend
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    {
-      id: '1',
-      name: 'Anticucho de Corazón',
-      description: 'Brochetas de corazón de res marinadas con ají panca y especias peruanas',
-      price: 25.90,
-      category: 'parrilla',
-      image: '🥩',
-      available: true,
-      preparationTime: 15
-    },
-    {
-      id: '2',
-      name: 'Parrilla Mixta',
-      description: 'Combinación de carnes: anticuchos, chorizo, mollejitas y papa rellena',
-      price: 45.90,
-      category: 'parrilla',
-      image: '🍖',
-      available: true,
-      preparationTime: 20
-    },
-    {
-      id: '3',
-      name: 'Pollo a la Brasa',
-      description: 'Pollo entero marinado con especias secretas, acompañado de papas y ensalada',
-      price: 28.90,
-      category: 'pollo',
-      image: '🍗',
-      available: true,
-      preparationTime: 25
-    },
-    {
-      id: '4',
-      name: 'Lomo Saltado',
-      description: 'Tiras de lomo saltadas con cebolla, tomate y papas fritas',
-      price: 32.90,
-      category: 'platos',
-      image: '🥘',
-      available: false,
-      preparationTime: 12
-    },
-    {
-      id: '5',
-      name: 'Inca Kola',
-      description: 'Bebida gaseosa peruana de 500ml',
-      price: 4.50,
-      category: 'bebidas',
-      image: '🥤',
-      available: true,
-      preparationTime: 1
-    },
-    {
-      id: '6',
-      name: 'Chicha Morada',
-      description: 'Bebida tradicional peruana hecha con maíz morado',
-      price: 6.90,
-      category: 'bebidas',
-      image: '🍷',
-      available: true,
-      preparationTime: 2
-    }
-  ]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const isAdmin = user?.role === 'ADMIN';
+
+  useEffect(() => {
+    menuAPI.getMenu()
+      .then(setMenuItems)
+      .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
+      .finally(() => setLoading(false));
+  }, []);
+
 
   const categories = [
-    { id: 'all', name: 'Todos', icon: '🍽️' },
-    { id: 'parrilla', name: 'Parrilla', icon: '🥩' },
-    { id: 'pollo', name: 'Pollo', icon: '🍗' },
-    { id: 'platos', name: 'Platos', icon: '🥘' },
-    { id: 'bebidas', name: 'Bebidas', icon: '🥤' }
+    { id: "all",      name: "Todas",     icon: "🍽️" },
+    { id: "parrillas", name: "Parrillas", icon: "🥩" },
+    { id: "postres",   name: "Postres",   icon: "🍰" },
+    { id: "bebidas",   name: "Bebidas",   icon: "🥤" }
   ];
 
   const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const s = searchTerm.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(s) ||
+      item.description?.toLowerCase().includes(s)
+    );
   });
 
-  const toggleAvailability = (id: string) => {
+  const toggleAvailability = (id: number) => {
     setMenuItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, available: !item.available } : item
+      items.map(it =>
+        it.id === id ? { ...it, isAvailable: !it.isAvailable } : it
       )
     );
   };
 
-  const handleEdit = (item: MenuItem) => {
-    setEditingItem(item);
-    setShowAddModal(true);
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const form = new FormData(e.currentTarget);
+  const data = {
+    title: form.get("title") as string,
+    description: form.get("description") as string,
+    price: Number(form.get("price") || 0),
+    category: { id: Number(form.get("categoryId")) },
+    imageUrl: form.get("imageUrl") as string,
+    isAvailable: true
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este plato?')) {
-      setMenuItems(items => items.filter(item => item.id !== id));
+
+  try {
+    if (editingItem) {
+      const updated = await menuAPI.updateMenu(editingItem.id, data);
+      setMenuItems(items => items.map(m => m.id === updated.id ? updated : m));
+    } else {
+      const created = await menuAPI.createMenu(data);
+      setMenuItems(items => [...items, created]);
     }
-  };
+    setShowAddModal(false);
+  } catch (err: any) {
+    alert(err.userMessage || 'Error al guardar el menú');
+  }
+};
+const handleEdit = (item: MenuItem) => {
+  setEditingItem(item);
+  setShowAddModal(true);
+};
+
+const handleDelete = async (id: number) => {
+  if (!confirm('¿Eliminar este plato?')) return;
+  try {
+    await menuAPI.deleteMenu(id);
+    setMenuItems(items => items.filter(m => m.id !== id));
+  } catch (err: any) {
+    alert(err.userMessage || 'Error al eliminar el menú');
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -141,6 +122,7 @@ export default function AdminMenu() {
           </div>
 
           {/* Add Button */}
+          {isAdmin && (
           <button
             onClick={() => {
               setEditingItem(null);
@@ -151,6 +133,7 @@ export default function AdminMenu() {
             <span>➕</span>
             Agregar Plato
           </button>
+          )}
         </div>
 
         {/* Category Filter */}
@@ -231,11 +214,17 @@ export default function AdminMenu() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center text-2xl">
-                    {item.image}
+                    <img
+                      src={item.imageUrl || "/fallback.png"}
+                      alt={item.title}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                    <p className="text-sm text-gray-500 capitalize">{item.category}</p>
+                    <p className="text-sm text-gray-500 capitalize">
+                      {item.category?.name}
+                    </p>
                   </div>
                 </div>
                 <div className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -273,18 +262,22 @@ export default function AdminMenu() {
                 >
                   {item.available ? 'Desactivar' : 'Activar'}
                 </button>
+                {isAdmin && (
                 <button
                   onClick={() => handleEdit(item)}
                   className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
                 >
                   ✏️
                 </button>
+                )}
+                {isAdmin && (
                 <button
                   onClick={() => handleDelete(item.id)}
                   className="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors"
                 >
                   🗑️
                 </button>
+                )}
               </div>
             </div>
           </div>
@@ -316,12 +309,13 @@ export default function AdminMenu() {
                 </button>
               </div>
 
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                   <input
+                  name="title"
                     type="text"
-                    defaultValue={editingItem?.name || ''}
+                    defaultValue={editingItem?.title || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Nombre del plato"
                   />
@@ -330,6 +324,7 @@ export default function AdminMenu() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                   <textarea
+                  name="description"
                     defaultValue={editingItem?.description || ''}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -341,20 +336,12 @@ export default function AdminMenu() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Precio (S/)</label>
                     <input
+                    name="price"
                       type="number"
                       step="0.10"
-                      defaultValue={editingItem?.price || ''}
+                      defaultValue={editingItem?.price ?? ''}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tiempo (min)</label>
-                    <input
-                      type="number"
-                      defaultValue={editingItem?.preparationTime || ''}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="15"
                     />
                   </div>
                 </div>
@@ -362,21 +349,22 @@ export default function AdminMenu() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
                   <select
-                    defaultValue={editingItem?.category || 'platos'}
+                  name="categoryId"
+                    defaultValue={editingItem?.category?.id ?? ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
-                    <option value="parrilla">Parrilla</option>
-                    <option value="pollo">Pollo</option>
-                    <option value="platos">Platos</option>
-                    <option value="bebidas">Bebidas</option>
+                    <option value="1">Parrillas</option>
+                    <option value="2">Postres</option>
+                    <option value="3">Bebidas</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Emoji/Icono</label>
                   <input
+                  name="imageUrl"
                     type="text"
-                    defaultValue={editingItem?.image || '🍽️'}
+                    defaultValue={editingItem?.imageUrl || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="🍽️"
                   />

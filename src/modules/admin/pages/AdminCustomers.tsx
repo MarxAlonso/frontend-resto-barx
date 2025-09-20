@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { userAPI } from '../../../services/api'; // importa tu api real
+import { userAPI } from '../../../services/api'; // importando el api
 
 interface Customer {
   id: number;

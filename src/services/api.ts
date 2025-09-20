@@ -102,7 +102,14 @@ export const menuAPI = {
   getFeatured: async () => {
     const response = await api.get('/menu/featured');
     return response.data; // Devuelve MenuItem[]
-  }
+  },
+
+  createMenu: async (data: Omit<MenuItem, 'id'>) =>
+    (await api.post('/menu', data)).data,
+  updateMenu: async (id: number, data: Partial<MenuItem>) =>
+    (await api.put(`/menu/${id}`, data)).data,
+  deleteMenu: async (id: number) =>
+    (await api.delete(`/menu/${id}`)).data,
 };
 
 export const orderAPI = {
@@ -173,13 +180,12 @@ export interface MenuItem {
   title: string;
   description: string;
   price: number;
-  category: {
-    id: number;
-    name: string;
-  };
+  category: { id: number; name: string };
   imageUrl?: string;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
-
 
 
 // Tipos para las respuestas de la API
