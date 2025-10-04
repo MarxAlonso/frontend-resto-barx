@@ -61,7 +61,7 @@ export default function ClientProfile() {
     }));
   };
 
-  const handleSave = async () => {
+  /*const handleSave = async () => {
     try {
       if (!user) return;
       
@@ -92,7 +92,21 @@ export default function ClientProfile() {
     } finally {
       setIsLoading(false);
     }
-  };
+  };*/
+  const handleSave = async () => {
+  try {
+    const updated = await userAPI.updateProfile(user.id, {
+      name: formData.name,
+      phone: formData.phone
+    });
+
+    setUser(updated.data);
+    setIsEditing(false);
+  } catch (error) {
+    console.error("Error al actualizar perfil:", error);
+  }
+};
+
 
   const handleCancel = () => {
     setFormData({

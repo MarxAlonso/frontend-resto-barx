@@ -93,8 +93,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Usar API del backend de Spring Boot
       const response = await authAPI.login(email, password);
       
-      const { token: newToken, user: newUser } = response;
-      
+      //const { token: newToken, user: newUser } = response;
+      const { token: newToken, user: newUser } = response.data;
+
       // Crear usuario con el tipo correcto
       const userWithCorrectType: User = {
         id: String(newUser.id),

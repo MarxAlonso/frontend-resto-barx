@@ -7,9 +7,15 @@ export default function ClientHome() {
   const { user } = useAuth();
   const [featured, setFeatured] = useState<MenuItem[]>([]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     menuAPI.getFeatured().then(setFeatured).catch(console.error);
+  }, []);*/
+  useEffect(() => {
+    menuAPI.getFeatured()
+      .then(res => setFeatured(res.data)) 
+      .catch(console.error);
   }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}

@@ -13,7 +13,7 @@ export default function MenuSection() {
 
   const categories: Category[] = ["Todas", "Parrillas", "Bebidas", "Postres"];
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchMenu = async () => {
       try {
         const data = await menuAPI.getMenu(); // llamada a al backend de springboot
@@ -26,7 +26,21 @@ export default function MenuSection() {
       }
     };
     fetchMenu();
-  }, []);
+  }, []);*/
+useEffect(() => {
+  const fetchMenu = async () => {
+    try {
+      const response = await menuAPI.getMenu(); 
+      setMenuItems(response.data); // usar .data
+    } catch (err: any) {
+      console.error(err);
+      setError("Error al cargar el menú");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchMenu();
+}, []);
 
   const filteredMenu =
     selectedCategory === "Todas"

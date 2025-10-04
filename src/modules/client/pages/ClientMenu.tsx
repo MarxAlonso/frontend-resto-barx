@@ -13,7 +13,7 @@ export default function ClientMenu() {
 
   // Cargar menú del backend
   useEffect(() => {
-    const fetchMenu = async () => {
+    /*const fetchMenu = async () => {
       try {
         const data = await menuAPI.getMenu();
         setMenuItems(data);
@@ -26,7 +26,22 @@ export default function ClientMenu() {
       } finally {
         setLoading(false);
       }
-    };
+    };*/
+    const fetchMenu = async () => {
+  try {
+    const response = await menuAPI.getMenu();
+    setMenuItems(response.data); // 👈 aquí usas el array
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      setError(err.message || 'Error al cargar el menú');
+    } else {
+      setError('Error al cargar el menú');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
     fetchMenu();
   }, []);
 

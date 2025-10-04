@@ -24,12 +24,21 @@ export default function AdminMenu() {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = user?.role === 'ADMIN';
 
-  useEffect(() => {
+  /*useEffect(() => {
     menuAPI.getMenu()
       .then(setMenuItems)
       .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
       .finally(() => setLoading(false));
-  }, []);
+  }, []);*/
+  useEffect(() => {
+  menuAPI.getMenu()
+    .then((res) => {
+      setMenuItems(res.data);   // <-- usar la propiedad `data`
+    })
+    .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
+    .finally(() => setLoading(false));
+}, []);
+
 
 
   const categories = [
@@ -69,13 +78,23 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
 
   try {
-    if (editingItem) {
+    /*if (editingItem) {
       const updated = await menuAPI.updateMenu(editingItem.id, data);
       setMenuItems(items => items.map(m => m.id === updated.id ? updated : m));
     } else {
       const created = await menuAPI.createMenu(data);
       setMenuItems(items => [...items, created]);
-    }
+    }*/
+   if (editingItem) {
+  const res = await menuAPI.updateMenu(editingItem.id, data);
+  const updated = res.data; // 👈 usar .data
+  setMenuItems(items => items.map(m => m.id === updated.id ? updated : m));
+} else {
+  const res = await menuAPI.createMenu(data);
+  const created = res.data; // 👈 usar .data
+  setMenuItems(items => [...items, created]);
+}
+
     setShowAddModal(false);
   } catch (err: any) {
     alert(err.userMessage || 'Error al guardar el menú');
@@ -175,7 +194,7 @@ const handleDelete = async (id: number) => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Disponibles</p>
-              <p className="text-xl font-bold text-green-600">{menuItems.filter(item => item.available).length}</p>
+              <p className="text-xl font-bold text-green-600">{menuItems.filter(item => item.isAvailable).length}</p>
             </div>
           </div>
         </div>
@@ -186,7 +205,7 @@ const handleDelete = async (id: number) => {
             </div>
             <div>
               <p className="text-sm text-gray-600">No Disponibles</p>
-              <p className="text-xl font-bold text-red-600">{menuItems.filter(item => !item.available).length}</p>
+              <p className="text-xl font-bold text-red-600">{menuItems.filter(item => !item.isAvailable).length}</p>
             </div>
           </div>
         </div>
@@ -221,18 +240,18 @@ const handleDelete = async (id: number) => {
                     />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                    <h3 className="font-semibold text-gray-900">{item.title}</h3>
                     <p className="text-sm text-gray-500 capitalize">
                       {item.category?.name}
                     </p>
                   </div>
                 </div>
                 <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  item.available 
+                  item.isAvailable 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-red-100 text-red-800'
                 }`}>
-                  {item.available ? 'Disponible' : 'No disponible'}
+                  {item.isAvailable ? 'Disponible' : 'No disponible'}
                 </div>
               </div>
 
@@ -255,12 +274,12 @@ const handleDelete = async (id: number) => {
                 <button
                   onClick={() => toggleAvailability(item.id)}
                   className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    item.available
+                    item.isAvailable
                       ? 'bg-red-50 text-red-600 hover:bg-red-100'
                       : 'bg-green-50 text-green-600 hover:bg-green-100'
                   }`}
                 >
-                  {item.available ? 'Desactivar' : 'Activar'}
+                  {item.isAvailable ? 'Desactivar' : 'Activar'}
                 </button>
                 {isAdmin && (
                 <button
