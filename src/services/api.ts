@@ -3,7 +3,7 @@ import axios from "axios";
 // Configuración base de la API
 export const api = axios.create({
   //import.meta.env.VITE_API_URL || 
-  baseURL: "http://localhost:8089/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8089/api",
   timeout: 10000, // 10 segundos de timeout
   headers: {
     'Content-Type': 'application/json',
