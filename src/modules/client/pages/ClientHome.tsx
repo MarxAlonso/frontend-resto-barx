@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { useEffect, useState } from 'react';
-import { menuAPI, MenuItem } from '../../../services/api'; //Ruta para llamar al api y las funciones del menuplatillo
+import { menuAPI } from "../../../services/api";
+import type { MenuItem } from "../../../services/api";
 
 export default function ClientHome() {
   const { user } = useAuth();
