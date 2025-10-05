@@ -192,7 +192,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Usar API del backend de Spring Boot
       const response = await authAPI.login(email, password);
-      
       const { token: newToken, user: newUser } = response;
       
       // Verificar que el usuario sea administrador

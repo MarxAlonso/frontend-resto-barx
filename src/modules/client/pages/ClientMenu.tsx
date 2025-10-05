@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import MenuCard from '../../../components/MenuCard';
+import MenuCard from '../components/MenuCard';
 import { menuAPI } from '../../../services/api';
 import type { MenuItem } from '../../../services/api';
+import { orderAPI } from '../../../services/api';
 
 export default function ClientMenu() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
@@ -82,6 +83,33 @@ export default function ClientMenu() {
   if (error) {
     return <div className="p-8 text-center text-red-600">{error}</div>;
   }
+const handleOrder = async () => {
+  if (cart.length === 0) {
+    alert('Tu carrito está vacío.');
+    return;
+  }
+
+  const orderData = {
+    items: cart.map(c => ({
+      menuId: c.item.id,
+      quantity: c.quantity
+    })),
+    totalPrice: getTotalPrice()
+  };
+
+  try {
+    await orderAPI.createOrder(orderData);
+    alert('✅ Pedido realizado con éxito!');
+    setCart([]); // limpiar carrito
+  } catch (err: unknown) {
+    console.error(err);
+    if (err instanceof Error) {
+      alert(err.message || 'Error al realizar el pedido');
+    } else {
+      alert('Error al realizar el pedido');
+    }
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -130,7 +158,7 @@ export default function ClientMenu() {
                 />
                 <button
                   onClick={() => addToCart(item)}
-                  className="absolute bottom-4 right-4 bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-full shadow-lg transition-colors"
+                  className="cursor-pointer absolute bottom-4 right-4 bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-full shadow-lg transition-colors"
                   title="Agregar al carrito"
                 >
                   🛒
@@ -218,9 +246,13 @@ export default function ClientMenu() {
                       S/ {getTotalPrice().toFixed(2)}
                     </span>
                   </div>
-                  <button className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                  <button
+                    onClick={handleOrder}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
                     Realizar Pedido
                   </button>
+
                 </div>
               </>
             )}

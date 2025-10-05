@@ -2,7 +2,8 @@ import axios from "axios";
 
 // Configuración base de la API
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8089/api",
+  //import.meta.env.VITE_API_URL || 
+  baseURL: "http://localhost:8089/api",
   timeout: 10000, // 10 segundos de timeout
   headers: {
     'Content-Type': 'application/json',
@@ -15,13 +16,15 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      //console.log("📦 Token enviado:", token); // esto estemporalmente
+    } else {
+      console.warn("⚠️ No hay token guardado en localStorage");
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
+
 
 // Interceptor para manejo de respuestas y errores
 api.interceptors.response.use(
@@ -121,11 +124,7 @@ export const menuAPI = {
 export const orderAPI = {
   // Crear orden (pedidos)
   createOrder: async (orderData: {
-    userId: number;
-    items: Array<{
-      menuId: number;
-      quantity: number;
-    }>;
+    items: Array<{ menuId: number; quantity: number }>;
     totalPrice: number;
   }) => {
     const response = await api.post('/orders', orderData);
