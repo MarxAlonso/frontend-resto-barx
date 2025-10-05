@@ -45,7 +45,7 @@ const Alert = ({ type, message, onClose }: AlertProps) => {
 export default function ClientProfile() {
   const { user, setUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading ] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -95,11 +95,11 @@ export default function ClientProfile() {
   };*/
   const handleSave = async () => {
   try {
-    const updated = await userAPI.updateProfile(user.id, {
-      name: formData.name,
-      phone: formData.phone
-    });
-
+    if (!user) return;
+      const updated = await userAPI.updateProfile(Number(user.id), {
+        name: formData.name,
+        phone: formData.phone
+      });
     setUser(updated.data);
     setIsEditing(false);
   } catch (error) {
@@ -153,7 +153,7 @@ export default function ClientProfile() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">{user?.name}</h2>
-                <p className="text-orange-100">{user?.role === 'client' ? 'Cliente' : 'Usuario'}</p>
+                <p className="text-orange-100">{user?.role === 'CLIENT' ? 'Cliente' : 'Usuario'}</p>
               </div>
             </div>
           </div>

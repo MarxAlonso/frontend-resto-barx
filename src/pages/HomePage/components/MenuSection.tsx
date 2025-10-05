@@ -1,17 +1,22 @@
 import { useEffect, useState } from "react";
 import MenuCard from "../../../components/MenuCard";
-import { menuAPI, MenuItem } from "../../../services/api"; // Llamando al api para el menu
+import { menuAPI } from "../../../services/api";
+import type { MenuItem } from "../../../services/api";
 
-// Estos son los tipos de categorias que existen en la tabla menu base al backend
-type Category = "Todas" | "Parrillas" | "Bebidas" | "Postres";
+// Tipos de categorías existentes en el backend
+type Category = "Parrillas" | "Bebidas" | "Postres";
+
+// Extendemos el tipo con "Todas" para el filtro
+type FilterCategory = Category | "Todas";
 
 export default function MenuSection() {
-  const [selectedCategory, setSelectedCategory] = useState<Category>("Todas");
+  const [selectedCategory, setSelectedCategory] = useState<FilterCategory>("Todas");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const categories: Category[] = ["Todas", "Parrillas", "Bebidas", "Postres"];
+  const categories: FilterCategory[] = ["Todas", "Parrillas", "Bebidas", "Postres"];
+
 
   /*useEffect(() => {
     const fetchMenu = async () => {
@@ -27,20 +32,26 @@ export default function MenuSection() {
     };
     fetchMenu();
   }, []);*/
-useEffect(() => {
-  const fetchMenu = async () => {
-    try {
-      const response = await menuAPI.getMenu(); 
-      setMenuItems(response.data); // usar .data
-    } catch (err: any) {
-      console.error(err);
-      setError("Error al cargar el menú");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchMenu();
-}, []);
+ useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const response = await menuAPI.getMenu();
+        setMenuItems(response.data); // ✅ correcto
+      } catch (err) {
+        // Tipar correctamente el error sin usar `any`
+        if (err instanceof Error) {
+          console.error(err.message);
+          setError("Error al cargar el menú: " + err.message);
+        } else {
+          console.error("Error desconocido", err);
+          setError("Error al cargar el menú");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenu();
+  }, []);
 
   const filteredMenu =
     selectedCategory === "Todas"

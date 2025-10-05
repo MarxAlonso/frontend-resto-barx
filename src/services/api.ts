@@ -92,25 +92,31 @@ export const authAPI = {
 };
 
 export const menuAPI = {
-  // Obtener menú del backend de springboot
+  // Obtener menú completo
   getMenu: async () => {
     const response = await api.get('/menu');
     return response.data;
   },
 
-  //Aca mostrara los 3 primeros menus
+  // Obtener los 3 primeros menús
   getFeatured: async () => {
     const response = await api.get('/menu/featured');
-    return response.data; // Devuelve MenuItem[]
+    return response.data;
   },
 
-  createMenu: async (data: Omit<MenuItem, 'id'>) =>
+  // Crear nuevo ítem del menú
+  createMenu: async (data: Partial<MenuItem>) =>
     (await api.post('/menu', data)).data,
+
+  // Actualizar ítem existente
   updateMenu: async (id: number, data: Partial<MenuItem>) =>
     (await api.put(`/menu/${id}`, data)).data,
+
+  // Eliminar ítem del menú
   deleteMenu: async (id: number) =>
     (await api.delete(`/menu/${id}`)).data,
 };
+
 
 export const orderAPI = {
   // Crear orden (pedidos)

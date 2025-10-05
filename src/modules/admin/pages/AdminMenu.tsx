@@ -1,17 +1,6 @@
 import { useState, useEffect } from 'react';
-import {menuAPI} from '../../../services/api';
-interface MenuItem {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  isAvailable: boolean;
-  category: { id: number; name?: string };
-  createdAt?: string;
-  updatedAt?: string;
-}
-
+import { menuAPI } from '../../../services/api';
+import type { MenuItem } from '../../../services/api';
 
 export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,7 +9,6 @@ export default function AdminMenu() {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = user?.role === 'ADMIN';
 
@@ -30,16 +18,20 @@ export default function AdminMenu() {
       .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
       .finally(() => setLoading(false));
   }, []);*/
-  useEffect(() => {
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
   menuAPI.getMenu()
     .then((res) => {
-      setMenuItems(res.data);   // <-- usar la propiedad `data`
+      setMenuItems(res.data); 
     })
     .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
     .finally(() => setLoading(false));
 }, []);
 
-
+if (loading) {
+  return <div className="text-center p-10">Cargando menú...</div>;
+}
 
   const categories = [
     { id: "all",      name: "Todas",     icon: "🍽️" },
@@ -67,14 +59,17 @@ export default function AdminMenu() {
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   const form = new FormData(e.currentTarget);
-  const data = {
-    title: form.get("title") as string,
-    description: form.get("description") as string,
-    price: Number(form.get("price") || 0),
-    category: { id: Number(form.get("categoryId")) },
-    imageUrl: form.get("imageUrl") as string,
-    isAvailable: true
-  };
+  const data: Partial<MenuItem> = {
+  title: form.get("title") as string,
+  description: form.get("description") as string,
+  price: Number(form.get("price") || 0),
+  category: { id: Number(form.get("categoryId")), name: "" },
+  imageUrl: form.get("imageUrl") as string,
+  isAvailable: true,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
 
 
   try {
@@ -96,8 +91,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 }
 
     setShowAddModal(false);
-  } catch (err: any) {
-    alert(err.userMessage || 'Error al guardar el menú');
+  } catch (err: unknown) {
+    const error = err as { userMessage?: string };
+    alert(error.userMessage || 'Error al guardar el menú');
   }
 };
 const handleEdit = (item: MenuItem) => {
@@ -110,8 +106,9 @@ const handleDelete = async (id: number) => {
   try {
     await menuAPI.deleteMenu(id);
     setMenuItems(items => items.filter(m => m.id !== id));
-  } catch (err: any) {
-    alert(err.userMessage || 'Error al eliminar el menú');
+  } catch (err: unknown) {
+    const error = err as { userMessage?: string };
+    alert(error.userMessage || 'Error al eliminar el menú');
   }
 };
 
@@ -262,10 +259,6 @@ const handleDelete = async (id: number) => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <span className="text-lg font-bold text-orange-600">S/ {item.price.toFixed(2)}</span>
-                  <span className="text-sm text-gray-500 flex items-center gap-1">
-                    <span>⏱️</span>
-                    {item.preparationTime} min
-                  </span>
                 </div>
               </div>
 

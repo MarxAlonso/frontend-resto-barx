@@ -1,0 +1,18 @@
+src/components/ProtectedRoute.tsx(27,26): error TS2367: This comparison appears to be unintentional because the types '"CLIENT" | "ADMIN" | undefined' and '"admin"' have no overlap.
+src/modules/admin/pages/AdminMenu.tsx(23,10): error TS6133: 'loading' is declared but its value is never read.
+src/modules/admin/pages/AdminMenu.tsx(89,56): error TS2345: Argument of type '{ title: string; description: string; price: number; category: { id: number; }; imageUrl: string; isAvailable: boolean; }' is not assignable to parameter of type 'Partial<MenuItem>'.
+  Types of property 'category' are incompatible.
+    Property 'name' is missing in type '{ id: number; }' but required in type '{ id: number; name: string; }'.
+src/modules/admin/pages/AdminMenu.tsx(93,40): error TS2345: Argument of type '{ title: string; description: string; price: number; category: { id: number; }; imageUrl: string; isAvailable: boolean; }' is not assignable to parameter of type 'Omit<MenuItem, "id">'.
+  Type '{ title: string; description: string; price: number; category: { id: number; }; imageUrl: string; isAvailable: boolean; }' is missing the following properties from type 'Omit<MenuItem, "id">': createdAt, updatedAt
+src/modules/admin/pages/AdminMenu.tsx(267,27): error TS2339: Property 'preparationTime' does not exist on type 'MenuItem'.
+src/modules/client/pages/ClientHome.tsx(4,19): error TS1484: 'MenuItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/modules/client/pages/ClientProfile.tsx(48,21): error TS6133: 'setIsLoading' is declared but its value is never read.
+src/modules/client/pages/ClientProfile.tsx(98,49): error TS18047: 'user' is possibly 'null'.
+src/modules/client/pages/ClientProfile.tsx(98,49): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+src/modules/client/pages/ClientProfile.tsx(156,49): error TS2367: This comparison appears to be unintentional because the types '"CLIENT" | "ADMIN" | undefined' and '"client"' have no overlap.
+src/pages/HomePage/components/MenuSection.tsx(3,19): error TS1484: 'MenuItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/HomePage/components/MenuSection.tsx(97,19): error TS2322: Type 'Category' is not assignable to type '"Parrillas" | "Bebidas" | "Postres"'.
+  Type '"Todas"' is not assignable to type '"Parrillas" | "Bebidas" | "Postres"'.
+src/pages/HomePage/index.ts(1,25): error TS2307: Cannot find module './Home' or its corresponding type declarations.
+Error: Command "npm run build" exited with 2
