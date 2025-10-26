@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { menuAPI } from '../../../services/api';
 import type { MenuItem } from '../../../services/api';
+import MenuStats from "../components/menu/MenuStats";
+import MenuControls from "../components/menu/MenuControls";
 
 export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -106,105 +108,20 @@ const handleDelete = async (id: number) => {
       </div>
 
       {/* Controls */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-          {/* Search */}
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
-              <input
-                type="text"
-                placeholder="Buscar platos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Add Button */}
-          {isAdmin && (
-          <button
-            onClick={() => {
-              setEditingItem(null);
-              setShowAddModal(true);
-            }}
-            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
-          >
-            <span>➕</span>
-            Agregar Plato
-          </button>
-          )}
-        </div>
-
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {categories.map(category => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === category.id
-                  ? 'bg-orange-100 text-orange-700 border border-orange-300'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <span>{category.icon}</span>
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <MenuControls
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        isAdmin={isAdmin}
+        setShowAddModal={setShowAddModal}
+        setEditingItem={setEditingItem}
+        categories={categories}
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <span className="text-xl">🍽️</span>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Platos</p>
-              <p className="text-xl font-bold text-gray-900">{menuItems.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <span className="text-xl">✅</span>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Disponibles</p>
-              <p className="text-xl font-bold text-green-600">{menuItems.filter(item => item.isAvailable).length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <span className="text-xl">❌</span>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">No Disponibles</p>
-              <p className="text-xl font-bold text-red-600">{menuItems.filter(item => !item.isAvailable).length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <span className="text-xl">💰</span>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Precio Promedio</p>
-              <p className="text-xl font-bold text-yellow-600">
-                S/ {(menuItems.reduce((sum, item) => sum + item.price, 0) / menuItems.length).toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MenuStats menuItems={menuItems} />
+
 
       {/* Menu Items Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
