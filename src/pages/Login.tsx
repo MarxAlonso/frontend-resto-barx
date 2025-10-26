@@ -212,52 +212,8 @@ export default function Login() {
                   <span className="px-2 bg-white text-gray-500">o inicia sesión como</span>
                 </div>
               </div>
-              
-              {/* Botones específicos */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={handleClientLogin}
-                  disabled={loading || !email || !password}
-                  className="flex justify-center items-center gap-2 py-3 px-4 border border-blue-300 rounded-lg shadow-sm text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
-                >
-                  <span>👤</span>
-                  Cliente
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={handleAdminLogin}
-                  disabled={loading || !email || !password}
-                  className="flex justify-center items-center gap-2 py-3 px-4 border border-purple-300 rounded-lg shadow-sm text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
-                >
-                  <span>👨‍💼</span>
-                  Admin
-                </button>
-              </div>
             </div>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
-              <span>ℹ️</span>
-              Credenciales de Prueba
-            </h3>
-            <div className="text-sm text-blue-700 space-y-2">
-              <div>
-                <p><strong>Cliente:</strong></p>
-                <p>Email: cliente@toritogrill.com | Contraseña: cliente123</p>
-              </div>
-              <div>
-                <p><strong>Admin:</strong></p>
-                <p>Email: admin@toritogrill.com | Contraseña: admin123</p>
-              </div>
-              <p className="text-xs text-blue-600 mt-2">
-                * Cualquier email/contraseña funciona en modo demo
-              </p>
-            </div>
-          </div>
 
           {/* Footer */}
           <div className="mt-6 text-center">

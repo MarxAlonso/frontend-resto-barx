@@ -310,7 +310,7 @@ export default function RegisterForm({ onSuccess, onCancel }: RegisterFormProps)
           <div className="text-sm text-blue-700">
             <p className="font-medium mb-1">Al registrarte:</p>
             <ul className="list-disc list-inside space-y-1 text-xs">
-              <li>Tu cuenta será creada automáticamente como Cliente</li>
+              <li>Tu cuenta será creada automáticamente.</li>
               <li>Podrás realizar pedidos y gestionar tu perfil</li>
               <li>Recibirás notificaciones sobre el estado de tus pedidos</li>
             </ul>
