@@ -40,7 +40,7 @@ export default function AdminDashboard() {
       const today = new Date().toISOString().split('T')[0];
       
       // Fetch all data in parallel
-      const [ordersResponse, usersResponse, menuResponse] = await Promise.all([
+      const [ordersResponse, usersResponse] = await Promise.all([
         orderAPI.getAllOrders({ startDate: today, endDate: today }),
         userAPI.getClients(),
         menuAPI.getMenu()
