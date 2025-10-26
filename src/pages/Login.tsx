@@ -39,60 +39,6 @@ export default function Login() {
     }
   };
 
-  const handleClientLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      setError('Por favor, completa todos los campos');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = await loginAsClient(email, password);
-      
-      if (result.success) {
-        navigate('/client');
-      } else {
-        setError(result.error || 'Error al iniciar sesión como cliente');
-      }
-    } catch (error: unknown) {
-      console.error('Error inesperado en login de cliente:', error);
-      setError('Error inesperado. Por favor, inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAdminLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      setError('Por favor, completa todos los campos');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = await loginAsAdmin(email, password);
-      
-      if (result.success) {
-        navigate('/admin');
-      } else {
-        setError(result.error || 'Error al iniciar sesión como administrador');
-      }
-    } catch (error: unknown) {
-      console.error('Error inesperado en login de admin:', error);
-      setError('Error inesperado. Por favor, inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
