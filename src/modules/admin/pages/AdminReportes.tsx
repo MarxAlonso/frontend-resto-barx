@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { menuAPI, orderAPI, userAPI, MenuItem } from '../../../services/api';
+import { useEffect, useMemo, useState } from 'react';
+import { menuAPI, orderAPI, userAPI } from '../../../services/api';
 
 // Tipos locales para datos
 interface Client {
@@ -28,6 +28,17 @@ interface OrderRow {
   items?: OrderItemRow[];
 }
 
+interface MenuItem {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: { id: number; name: string };
+  imageUrl?: string;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 // Utilidad: formateo de moneda
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(value);

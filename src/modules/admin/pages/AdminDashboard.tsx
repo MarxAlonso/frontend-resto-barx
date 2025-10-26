@@ -46,7 +46,6 @@ export default function AdminDashboard() {
         menuAPI.getMenu()
       ]);
 
-      // ✅ Obtener órdenes del día
 // ✅ Obtener órdenes del día
 const todayOrders = ordersResponse.data || [];
 
@@ -72,8 +71,6 @@ const recent = allOrders.slice(0, 4).map((order: any) => ({
   })
 }));
 
-// ✅ Items populares
-const menuItems = menuResponse || [];
       // Actualizar estados
       setStats({
         todayOrders: todayOrders.length,
