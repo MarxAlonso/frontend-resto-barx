@@ -40,16 +40,6 @@ export default function AdminCustomers() {
     const fetchClients = async () => {
       try {
         const data = await userAPI.getClients();
-        /*setCustomers(
-          data.map((u: Customer) => ({
-            id: u.id,
-            name: u.name,
-            email: u.email,
-            phone: u.phone || '',
-            isActive: u.isActive,
-            createdAt: u.createdAt,
-          }))
-        );*/
         setCustomers(
           data.map((u: any) => ({
             id: u.id,
@@ -95,8 +85,6 @@ export default function AdminCustomers() {
   const handleDelete = async (customerId: number) => {
     if (confirm('¿Eliminar este cliente?')) {
       await userAPI.deleteClient(customerId);
-      /*setCustomers((prev) => prev.map((c) => (c.id === editingCustomer.id ? { ...c, ...updated } : c)));*/
-
       setCustomers((prev) => prev.filter((c) => c.id !== customerId));
     }
   };

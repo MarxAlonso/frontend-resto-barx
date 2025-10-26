@@ -12,13 +12,7 @@ export default function AdminMenu() {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAdmin = user?.role === 'ADMIN';
 
-  /*useEffect(() => {
-    menuAPI.getMenu()
-      .then(setMenuItems)
-      .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
-      .finally(() => setLoading(false));
-  }, []);*/
-const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
 useEffect(() => {
   menuAPI.getMenu()
@@ -70,16 +64,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   updatedAt: new Date().toISOString()
 };
 
-
-
   try {
-    /*if (editingItem) {
-      const updated = await menuAPI.updateMenu(editingItem.id, data);
-      setMenuItems(items => items.map(m => m.id === updated.id ? updated : m));
-    } else {
-      const created = await menuAPI.createMenu(data);
-      setMenuItems(items => [...items, created]);
-    }*/
    if (editingItem) {
   const res = await menuAPI.updateMenu(editingItem.id, data);
   const updated = res.data; // 👈 usar .data

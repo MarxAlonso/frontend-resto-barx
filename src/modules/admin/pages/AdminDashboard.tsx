@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { orderAPI, userAPI, menuAPI } from '../../../services/api';
-import { Link } from 'react-router-dom';
+import OrdersActivityChart from "../components/charts/OrdersActivityChart";
+import StatsCards from "../components/dashboard/StatsCards";
+import QuickActions from "../components/dashboard/QuickActions";
+
 interface DashboardStats {
   todayOrders: number;
   todayRevenue: number;
@@ -31,6 +34,10 @@ export default function AdminDashboard() {
     fetchDashboardData();
   }, []);
 
+  const [ordersByDay, setOrdersByDay] = useState<
+        { date: string; orders: number; revenue: number }[]
+      >([]);
+      
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -46,30 +53,57 @@ export default function AdminDashboard() {
         menuAPI.getMenu()
       ]);
 
-// ✅ Obtener órdenes del día
-const todayOrders = ordersResponse.data || [];
+      // ✅ Obtener órdenes del día
+      const todayOrders = ordersResponse.data || [];
 
-const todayRevenue = todayOrders.reduce(
-  (sum: number, order: any) => sum + Number(order.total_price || 0),
-  0
-);
+      const todayRevenue = todayOrders.reduce(
+        (sum: number, order: any) => sum + Number(order.total_price || 0),
+        0
+      );
 
-const pendingOrders = todayOrders.filter(
-  (order: any) => order.status === 'pending'
-).length;
+      const pendingOrders = todayOrders.filter(
+        (order: any) => order.status === 'pending'
+      ).length;
 
-// ✅ Obtener todas las órdenes recientes (si tu backend devuelve todas aquí mismo)
-const allOrders = ordersResponse.data || [];
-const recent = allOrders.slice(0, 4).map((order: any) => ({
-  id: order.id,
-  customer: order.user?.name || 'Cliente Anónimo',
-  total: Number(order.total_price || 0),
-  status: order.status,
-  time: new Date(order.created_at).toLocaleTimeString('es-ES', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}));
+      // ✅ Obtener todas las órdenes recientes (si tu backend devuelve todas aquí mismo)
+      const allOrders = ordersResponse.data || [];
+      const recent = allOrders.slice(0, 4).map((order: any) => ({
+        id: order.id,
+        customer: order.user?.name || 'Cliente Anónimo',
+        total: Number(order.total_price || 0),
+        status: order.status,
+        time: new Date(order.created_at).toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      }));
+
+      // Agrupar datos de órdenes por fecha
+      const groupOrdersByDay = (orders: any[]) => {
+        const grouped: { date: string; orders: number; revenue: number }[] = [];
+
+        orders.forEach(order => {
+          const date = new Date(order.created_at).toISOString().split('T')[0];
+
+          const existing = grouped.find(g => g.date === date);
+
+          if (existing) {
+            existing.orders += 1;
+            existing.revenue += Number(order.total_price || 0);
+          } else {
+            grouped.push({
+              date,
+              orders: 1,
+              revenue: Number(order.total_price || 0)
+            });
+          }
+        });
+
+        return grouped.sort((a, b) => a.date.localeCompare(b.date));
+      };
+// ✅ Agrupar por día para el gráfico
+const groupedOrders = groupOrdersByDay(allOrders);
+setOrdersByDay(groupedOrders);
 
       // Actualizar estados
       setStats({
@@ -152,67 +186,7 @@ const recent = allOrders.slice(0, 4).map((order: any) => ({
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pedidos Hoy</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.todayOrders}</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">📋</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">+12% vs ayer</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Ingresos Hoy</p>
-              <p className="text-3xl font-bold text-gray-900">S/ {stats.todayRevenue.toFixed(2)}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">💰</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">+8% vs ayer</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pedidos Pendientes</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.pendingOrders}</p>
-            </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">⏳</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-yellow-600 text-sm font-medium">Requiere atención</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Clientes</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalCustomers}</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">👥</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">+5 nuevos esta semana</span>
-          </div>
-        </div>
-      </div>
+      <StatsCards stats={stats} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Orders */}
@@ -261,27 +235,11 @@ const recent = allOrders.slice(0, 4).map((order: any) => ({
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-md">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Acciones Rápidas</h3>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-2 gap-4">
-              <Link to="/admin/menu" className="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-4 text-center transition-colors">
-                <div className="text-2xl mb-2">🍽️</div>
-                <div className="text-sm font-medium text-green-900">Agregar Plato</div>
-              </Link>
-              <Link to="/admin/customers" className="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-4 text-center transition-colors">
-                <div className="text-2xl mb-2">👤</div>
-                <div className="text-sm font-medium text-purple-900">Nuevo Cliente</div>
-              </Link>
-              <Link to="/admin/reportes" className="bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg p-4 text-center transition-colors">
-                <div className="text-2xl mb-2">📊</div>
-                <div className="text-sm font-medium text-orange-900">Ver Reportes</div>
-              </Link>
-            </div>
-          </div>
-        </div>
+        <QuickActions />
+
+        {/* Grafico de Actividad por Dia */}
+        <OrdersActivityChart ordersByDay={ordersByDay} />
+
       </div>
     </div>
   );
