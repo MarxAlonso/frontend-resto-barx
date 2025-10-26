@@ -23,10 +23,10 @@ export default function AdminHeader() {
         <div className="flex items-center space-x-4">
           {/* Notifications */}
           <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-            <span className="text-xl">🔔</span>
+            {/*<span className="text-xl">🔔</span>
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               3
-            </span>
+            </span>*/}
           </button>
 
           {/* User Info */}

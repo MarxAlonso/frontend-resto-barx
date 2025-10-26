@@ -23,15 +23,15 @@ const menuItems = [
     label: 'Clientes'
   },
   {
-    path: '/admin/reports',
+    path: '/admin/reportes',
     icon: '📈',
     label: 'Reportes'
   },
-  {
+  /*{
     path: '/admin/settings',
     icon: '⚙️',
     label: 'Configuración'
-  }
+  }*/
 ];
 
 export default function AdminSidebar() {

@@ -137,9 +137,9 @@ export const orderAPI = {
     return response.data;
   },
   
-  // Obtener todas las órdenes (admin)
-  getAllOrders: async () => {
-    const response = await api.get('/orders');
+  // Obtener todas las órdenes (admin) con filtros opcionales
+  getAllOrders: async (filters?: { startDate?: string; endDate?: string; status?: string; userId?: number }) => {
+    const response = await api.get('/orders', { params: filters });
     return response.data;
   },
   

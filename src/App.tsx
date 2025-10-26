@@ -16,6 +16,7 @@ import AdminLayout from "./modules/admin/layouts/AdminLayout";
 import { AdminDashboard, AdminOrders } from "./modules/admin/pages";
 import AdminMenu from "./modules/admin/pages/AdminMenu";
 import AdminCustomers from "./modules/admin/pages/AdminCustomers";
+import AdminReportes from "./modules/admin/pages/AdminReportes";
 
 
 // Componente para mostrar Home o redirigir según autenticación
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="menu" element={<AdminMenu />} />
             <Route path="customers" element={<AdminCustomers />} />
+            <Route path="reportes" element={<AdminReportes />} />
           </Route>
           
           {/* 404 */}
