@@ -1,23 +1,28 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
-import HomePage from "./pages/HomePage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import NotFound from "./pages/NotFound";
 
-// Client imports
-import ClientLayout from "./modules/client/layouts/ClientLayout";
-import { ClientHome, ClientMenu, ClientOrders, ClientProfile } from "./modules/client/pages";
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Admin imports
-import AdminLayout from "./modules/admin/layouts/AdminLayout";
-import { AdminDashboard, AdminOrders } from "./modules/admin/pages";
-import AdminMenu from "./modules/admin/pages/AdminMenu";
-import AdminCustomers from "./modules/admin/pages/AdminCustomers";
-import AdminReportes from "./modules/admin/pages/AdminReportes";
+// Client
+const ClientLayout = lazy(() => import("./modules/client/layouts/ClientLayout"));
+const ClientHome = lazy(() => import("./modules/client/pages/ClientHome"));
+const ClientMenu = lazy(() => import("./modules/client/pages/ClientMenu"));
+const ClientOrders = lazy(() => import("./modules/client/pages/ClientOrders"));
+const ClientProfile = lazy(() => import("./modules/client/pages/ClientProfile"));
 
+// Admin
+const AdminLayout = lazy(() => import("./modules/admin/layouts/AdminLayout"));
+const AdminDashboard = lazy(() => import("./modules/admin/pages/AdminDashboard"));
+const AdminOrders = lazy(() => import("./modules/admin/pages/AdminOrders"));
+const AdminMenu = lazy(() => import("./modules/admin/pages/AdminMenu"));
+const AdminCustomers = lazy(() => import("./modules/admin/pages/AdminCustomers"));
+const AdminReportes = lazy(() => import("./modules/admin/pages/AdminReportes"));
 
 // Componente para mostrar Home o redirigir según autenticación
 function HomeOrRedirect() {
@@ -43,7 +48,13 @@ function HomeOrRedirect() {
 export default function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen">
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center min-h-screen">
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent"></div>
+          </div>
+        }
+      >
         <Routes>
           {/* Ruta raíz - Home informativo o redirección según autenticación */}
           <Route path="/" element={<HomeOrRedirect />} />
@@ -82,7 +93,7 @@ export default function App() {
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </div>
+      </Suspense>
     </AuthProvider>
   );
 }
