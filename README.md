@@ -25,7 +25,7 @@ Este repositorio contiene el **sistema web** para Resto BarX, desarrollado con:
 - ⚛ **React + Vite** – Framework rápido y moderno para interfaces.
 - 🎨 **TailwindCSS v4.1** – Estilos responsivos y personalizables.
 - 🌐 **Axios** – Conexión eficiente al backend.
-- 🖥 **Spring Boot + MySQL** – Backend robusto para gestión de datos y API REST.
+- 🖥 **NodejJS + Express + PostgreSQL** – Backend robusto para gestión de datos y API REST.
 
 El proyecto permite **gestionar menús, pedidos y reservas**, ofreciendo una experiencia fluida tanto para el cliente como para el administrador.
 
@@ -38,7 +38,7 @@ El proyecto permite **gestionar menús, pedidos y reservas**, ofreciendo una exp
 
 - **Node.js** ≥ 18
 - **npm** o **yarn**
-- Acceso al backend **Spring Boot + MySQL**
+- Acceso al backend **NodejJS + Express + PostgreSQL**
 
 ---
 
