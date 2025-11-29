@@ -16,7 +16,6 @@ export default function ClientMenu() {
 
   const [cart, setCart] = useState<{ item: MenuItem; quantity: number }[]>([]);
   const [showPayment, setShowPayment] = useState(false);
-  const [orderId, setOrderId] = useState<number | null>(null);
 
   // Cargar menú del backend
   useEffect(() => {
@@ -99,11 +98,7 @@ export default function ClientMenu() {
     setShowPayment(true);
   };
 
-  const initialization = {
-    amount: getTotalPrice(),
-    preferenceId: "<PREFERENCE_ID>", // No estamos usando preferencia backend por ahora, pero es requerido si no se pasa amount directo en brick (depende config)
-    // Para bricks de pago directo, amount es clave.
-  };
+
 
   const customization = {
     paymentMethods: {
@@ -114,9 +109,7 @@ export default function ClientMenu() {
     },
   } as const;
 
-  const onSubmit = async (
-    { selectedPaymentMethod, formData }: any
-  ) => {
+  const onSubmit = async ({ formData }: any) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
         // 1. Primero crear la orden
@@ -132,7 +125,7 @@ export default function ClientMenu() {
         const createdOrderId = orderResponse?.data?.orderId;
 
         // 2. Luego procesar el pago con el orderId
-        const paymentResponse = await paymentAPI.processPayment({
+        await paymentAPI.processPayment({
           ...formData,
           orderId: createdOrderId
         });
@@ -142,7 +135,6 @@ export default function ClientMenu() {
         alert('✅ Pago realizado con éxito!');
         setCart([]);
         setShowPayment(false);
-        setOrderId(null);
       } catch (error) {
         console.error(error);
         reject();
