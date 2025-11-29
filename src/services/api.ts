@@ -3,7 +3,7 @@ import axios from "axios";
 // Configuración base de la API
 export const api = axios.create({
   //import.meta.env.VITE_API_URL || 
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8089/api",
+  baseURL: "http://localhost:8089/api",
   timeout: 20000, // 10 segundos de timeout
   headers: {
     'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ api.interceptors.response.use(
     } else {
       error.userMessage = 'Error de conexión. Verifica tu conexión a internet.';
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -80,13 +80,13 @@ export const authAPI = {
     const response = await api.post('/auth/login', { email, password });
     return response.data;
   },
-  
+
   // Registro de usuario
   register: async (userData: { name: string; email: string; password: string; role?: string }) => {
     const response = await api.post('/auth/register', userData);
     return response.data;
   },
-  
+
   // Verificar token
   verifyToken: async () => {
     const response = await api.get('/auth/verify');
@@ -130,19 +130,19 @@ export const orderAPI = {
     const response = await api.post('/orders', orderData);
     return response.data as ApiResponse<{ orderId: number }>;
   },
-  
+
   // Obtener órdenes del usuario
   getUserOrders: async () => {
     const response = await api.get('/orders/user');
     return response.data;
   },
-  
+
   // Obtener todas las órdenes (admin) con filtros opcionales
   getAllOrders: async (filters?: { startDate?: string; endDate?: string; status?: string; userId?: number }) => {
     const response = await api.get('/orders', { params: filters });
     return response.data;
   },
-  
+
   // Actualizar estado de orden (admin)
   updateOrderStatus: async (orderId: number, status: string) => {
     const response = await api.put(`/orders/${orderId}/status`, { status });
@@ -176,6 +176,17 @@ export const userAPI = {
   },
   deleteClient: async (id: number) => {
     await api.delete(`/users/${id}`);
+  }
+};
+
+export const paymentAPI = {
+  processPayment: async (paymentData: any) => {
+    const response = await api.post('/payments/process_payment', paymentData);
+    return response.data;
+  },
+  getPayments: async () => {
+    const response = await api.get('/payments');
+    return response.data;
   }
 };
 

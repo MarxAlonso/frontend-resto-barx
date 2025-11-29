@@ -11,7 +11,7 @@ interface OrderItem {
 interface Order {
   id: number;
   createdAt: string;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'PAID';
   totalPrice: number;
   items: OrderItem[];
 }
@@ -22,70 +22,69 @@ export default function ClientOrders() {
   const [loading, setLoading] = useState(true);
 
   interface ApiError {
-  userMessage?: string;
-  message?: string;
-  response?: {
-    data?: { message?: string };
-  };
-}
+    userMessage?: string;
+    message?: string;
+    response?: {
+      data?: { message?: string };
+    };
+  }
 
-useEffect(() => {
-  const fetchOrders = async () => {
-    try {
-      const res = await orderAPI.getUserOrders();
-      //console.log("🔑 Token actual:", localStorage.getItem("token"));
-      //console.log("📦 Respuesta del backend:", res);
-      //console.log("📦 Órdenes recibidas:", res.data);
-      //setOrders(res.data.data || res.data || []);// ✅ acceder a la propiedad data interna
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await orderAPI.getUserOrders();
+        //console.log("🔑 Token actual:", localStorage.getItem("token"));
+        //console.log("📦 Respuesta del backend:", res);
+        //console.log("📦 Órdenes recibidas:", res.data);
+        //setOrders(res.data.data || res.data || []);// ✅ acceder a la propiedad data interna
 
-      const rawOrders = res.data.data || res.data || [];
-    // Transformar los nombres de las propiedades
-    interface RawOrderItem {
-      menu_id: number;
-      title: string;
-      price: string; // viene como string del backend
-      quantity: number;
-    }
-
-    interface RawOrder {
-      id: number;
-      created_at: string;
-      status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
-      total_price: string;
-      items: RawOrderItem[];
-    }
-
-    const formattedOrders: Order[] = (rawOrders as RawOrder[]).map((o) => ({
-      id: o.id,
-      createdAt: o.created_at,
-      status: o.status,
-      totalPrice: parseFloat(o.total_price),
-      items: o.items.map((item) => ({
-        id: item.menu_id,
-        title: item.title,
-        price: parseFloat(item.price),
-        quantity: item.quantity,
-      })),
-    }));
-
-
-    setOrders(formattedOrders);
-
-        } catch (err) {
-          const error = err as ApiError;
-          alert(
-            error.userMessage ||
-            error.response?.data?.message ||
-            error.message ||
-            'Error al obtener los pedidos.'
-          );
-        } finally {
-          setLoading(false);
+        const rawOrders = res.data.data || res.data || [];
+        // Transformar los nombres de las propiedades
+        interface RawOrderItem {
+          menu_id: number;
+          title: string;
+          price: string; // viene como string del backend
+          quantity: number;
         }
-      };
 
-      fetchOrders();
-    }, []);
+        interface RawOrder {
+          id: number;
+          created_at: string;
+          status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
+          total_price: string;
+          items: RawOrderItem[];
+        }
+
+        const formattedOrders: Order[] = (rawOrders as RawOrder[]).map((o) => ({
+          id: o.id,
+          createdAt: o.created_at,
+          status: o.status,
+          totalPrice: parseFloat(o.total_price),
+          items: o.items.map((item) => ({
+            id: item.menu_id,
+            title: item.title,
+            price: parseFloat(item.price),
+            quantity: item.quantity,
+          })),
+        }));
+
+        setOrders(formattedOrders);
+
+      } catch (err) {
+        const error = err as ApiError;
+        alert(
+          error.userMessage ||
+          error.response?.data?.message ||
+          error.message ||
+          'Error al obtener los pedidos.'
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -93,6 +92,7 @@ useEffect(() => {
       case 'PROCESSING': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'COMPLETED': return 'bg-green-100 text-green-800 border-green-200';
       case 'CANCELLED': return 'bg-red-100 text-red-800 border-red-200';
+      case 'PAID': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -103,6 +103,7 @@ useEffect(() => {
       case 'PROCESSING': return 'En preparación';
       case 'COMPLETED': return 'Entregado';
       case 'CANCELLED': return 'Cancelado';
+      case 'PAID': return 'Pagado';
       default: return 'Desconocido';
     }
   };
@@ -146,11 +147,10 @@ useEffect(() => {
             <button
               key={s}
               onClick={() => setSelectedStatus(s)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-                selectedStatus === s
-                  ? 'bg-orange-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 hover:bg-orange-50 border border-gray-200'
-              }`}
+              className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${selectedStatus === s
+                ? 'bg-orange-600 text-white shadow-lg'
+                : 'bg-white text-gray-700 hover:bg-orange-50 border border-gray-200'
+                }`}
             >
               {s === 'all' ? 'Todos' : getStatusText(s)}
             </button>
