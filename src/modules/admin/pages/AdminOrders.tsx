@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { orderAPI } from "../../../services/api";
 
-export type OrderStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "PAID";
 
 interface OrderItem {
   id: number;
@@ -105,6 +105,7 @@ export default function AdminOrders() {
       case "PROCESSING": return "bg-blue-100 text-blue-800 border-blue-200";
       case "COMPLETED": return "bg-green-100 text-green-800 border-green-200";
       case "CANCELLED": return "bg-red-100 text-red-800 border-red-200";
+      case "PAID": return "bg-emerald-100 text-emerald-800 border-emerald-200";
       default: return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
@@ -119,7 +120,7 @@ export default function AdminOrders() {
     });
 
   const totalEarnings = orders
-    .filter((o) => o.status === "COMPLETED")
+    .filter((o) => o.status === "COMPLETED" || o.status === "PAID")
     .reduce((acc, o) => acc + o.totalPrice, 0);
 
   const getCountByStatus = (status: OrderStatus) =>
@@ -161,7 +162,7 @@ export default function AdminOrders() {
       {/* Cards resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mb-6">
         {[
-          { label: "Pendientes", status: "PENDING", color: "text-yellow-600", icon: "⏳" },
+          { label: "Pagadas", status: "PAID", color: "text-emerald-600", icon: "💰" },
           { label: "En Proceso", status: "PROCESSING", color: "text-blue-600", icon: "👨‍🍳" },
           { label: "Completadas", status: "COMPLETED", color: "text-green-600", icon: "✅" },
           { label: "Canceladas", status: "CANCELLED", color: "text-red-600", icon: "❌" },
@@ -188,7 +189,7 @@ export default function AdminOrders() {
       <div className="flex flex-wrap gap-2 mb-6">
         {[
           { key: "all", label: "Todos" },
-          { key: "PENDING", label: "Pendientes" },
+          { key: "PAID", label: "Pagadas" },
           { key: "PROCESSING", label: "En preparación" },
           { key: "COMPLETED", label: "Completados" },
           { key: "CANCELLED", label: "Cancelados" },
@@ -196,11 +197,10 @@ export default function AdminOrders() {
           <button
             key={f.key}
             onClick={() => filterOrders(f.key)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              selectedStatus === f.key
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedStatus === f.key
                 ? "bg-orange-600 text-white"
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-            }`}
+              }`}
           >
             {f.label}
           </button>
@@ -256,31 +256,30 @@ export default function AdminOrders() {
                       Ver
                     </button>
                     <select
-                    value={order.status}
-                    onChange={(e) => {
-                      const newStatus = e.target.value as OrderStatus;
-                      if (newStatus !== order.status) {
-                        const confirmChange = window.confirm(
-                          `¿Confirmas cambiar el estado a "${newStatus}"?`
-                        );
-                        if (confirmChange) updateOrderStatus(order.id, newStatus);
-                      }
-                    }}
-                    className={`text-sm rounded-lg border px-2 py-1 font-medium cursor-pointer ${
-                      order.status === "PENDING"
-                        ? "bg-yellow-50 border-yellow-300 text-yellow-700"
-                        : order.status === "PROCESSING"
-                        ? "bg-blue-50 border-blue-300 text-blue-700"
-                        : order.status === "COMPLETED"
-                        ? "bg-green-50 border-green-300 text-green-700"
-                        : "bg-red-50 border-red-300 text-red-700"
-                    }`}
-                  >
-                    <option value="PENDING">Pendiente</option>
-                    <option value="PROCESSING">En proceso</option>
-                    <option value="COMPLETED">Completado</option>
-                    <option value="CANCELLED">Cancelado</option>
-                  </select>
+                      value={order.status}
+                      onChange={(e) => {
+                        const newStatus = e.target.value as OrderStatus;
+                        if (newStatus !== order.status) {
+                          const confirmChange = window.confirm(
+                            `¿Confirmas cambiar el estado a "${newStatus}"?`
+                          );
+                          if (confirmChange) updateOrderStatus(order.id, newStatus);
+                        }
+                      }}
+                      className={`text-sm rounded-lg border px-2 py-1 font-medium cursor-pointer ${order.status === "PAID"
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                          : order.status === "PROCESSING"
+                            ? "bg-blue-50 border-blue-300 text-blue-700"
+                            : order.status === "COMPLETED"
+                              ? "bg-green-50 border-green-300 text-green-700"
+                              : "bg-red-50 border-red-300 text-red-700"
+                        }`}
+                    >
+                      <option value="PAID">Pagada</option>
+                      <option value="PROCESSING">En proceso</option>
+                      <option value="COMPLETED">Completado</option>
+                      <option value="CANCELLED">Cancelado</option>
+                    </select>
                   </td>
                 </tr>
               ))}
