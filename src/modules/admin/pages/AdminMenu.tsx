@@ -9,6 +9,7 @@ export default function AdminMenu() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -16,24 +17,24 @@ export default function AdminMenu() {
 
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  menuAPI.getMenu()
-    .then((res) => {
-      setMenuItems(res.data); 
-    })
-    .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
-    .finally(() => setLoading(false));
-}, []);
+  useEffect(() => {
+    menuAPI.getMenu()
+      .then((res) => {
+        setMenuItems(res.data);
+      })
+      .catch((err) => alert(err.userMessage || 'Error al cargar menús'))
+      .finally(() => setLoading(false));
+  }, []);
 
-if (loading) {
-  return <div className="text-center p-10">Cargando menú...</div>;
-}
+  if (loading) {
+    return <div className="text-center p-10">Cargando menú...</div>;
+  }
 
   const categories = [
-    { id: "all",      name: "Todas",     icon: "🍽️" },
+    { id: "all", name: "Todas", icon: "🍽️" },
     { id: "parrillas", name: "Parrillas", icon: "🥩" },
-    { id: "postres",   name: "Postres",   icon: "🍰" },
-    { id: "bebidas",   name: "Bebidas",   icon: "🥤" }
+    { id: "postres", name: "Postres", icon: "🍰" },
+    { id: "bebidas", name: "Bebidas", icon: "🥤" }
   ];
 
   const filteredItems = menuItems.filter(item => {
@@ -52,52 +53,57 @@ if (loading) {
     );
   };
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  const form = new FormData(e.currentTarget);
-  const data: Partial<MenuItem> = {
-  title: form.get("title") as string,
-  description: form.get("description") as string,
-  price: Number(form.get("price") || 0),
-  category: { id: Number(form.get("categoryId")), name: "" },
-  imageUrl: form.get("imageUrl") as string,
-  isAvailable: true,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-};
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const data: Partial<MenuItem> = {
+      title: form.get("title") as string,
+      description: form.get("description") as string,
+      price: Number(form.get("price") || 0),
+      category: { id: Number(form.get("categoryId")), name: "" },
+      imageUrl: form.get("imageUrl") as string,
+      isAvailable: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
 
-  try {
-   if (editingItem) {
-  const res = await menuAPI.updateMenu(editingItem.id, data);
-  const updated = res.data; // 👈 usar .data
-  setMenuItems(items => items.map(m => m.id === updated.id ? updated : m));
-} else {
-  const res = await menuAPI.createMenu(data);
-  const created = res.data; // 👈 usar .data
-  setMenuItems(items => [...items, created]);
-}
+    try {
+      if (editingItem) {
+        const res = await menuAPI.updateMenu(editingItem.id, data);
+        const updated = res.data; // 👈 usar .data
+        setMenuItems(items => items.map(m => m.id === updated.id ? updated : m));
+      } else {
+        const res = await menuAPI.createMenu(data);
+        const created = res.data; // 👈 usar .data
+        setMenuItems(items => [...items, created]);
+      }
 
-    setShowAddModal(false);
-  } catch (err: unknown) {
-    const error = err as { userMessage?: string };
-    alert(error.userMessage || 'Error al guardar el menú');
-  }
-};
-const handleEdit = (item: MenuItem) => {
-  setEditingItem(item);
-  setShowAddModal(true);
-};
+      setShowAddModal(false);
+    } catch (err: unknown) {
+      const error = err as { userMessage?: string };
+      alert(error.userMessage || 'Error al guardar el menú');
+    }
+  };
+  const handleEdit = (item: MenuItem) => {
+    setEditingItem(item);
+    setShowAddModal(true);
+  };
 
-const handleDelete = async (id: number) => {
-  if (!confirm('¿Eliminar este plato?')) return;
-  try {
-    await menuAPI.deleteMenu(id);
-    setMenuItems(items => items.filter(m => m.id !== id));
-  } catch (err: unknown) {
-    const error = err as { userMessage?: string };
-    alert(error.userMessage || 'Error al eliminar el menú');
-  }
-};
+  const handleDelete = (item: MenuItem) => {
+    setDeletingItem(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingItem) return;
+    try {
+      await menuAPI.deleteMenu(deletingItem.id);
+      setMenuItems(items => items.filter(m => m.id !== deletingItem.id));
+      setDeletingItem(null);
+    } catch (err: unknown) {
+      const error = err as { userMessage?: string };
+      alert(error.userMessage || 'Error al eliminar el menú');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -145,11 +151,10 @@ const handleDelete = async (id: number) => {
                     </p>
                   </div>
                 </div>
-                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  item.isAvailable 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <div className={`px-2 py-1 rounded-full text-xs font-medium ${item.isAvailable
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+                  }`}>
                   {item.isAvailable ? 'Disponible' : 'No disponible'}
                 </div>
               </div>
@@ -168,29 +173,28 @@ const handleDelete = async (id: number) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => toggleAvailability(item.id)}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    item.isAvailable
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                      : 'bg-green-50 text-green-600 hover:bg-green-100'
-                  }`}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${item.isAvailable
+                    ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                    : 'bg-green-50 text-green-600 hover:bg-green-100'
+                    }`}
                 >
                   {item.isAvailable ? 'Desactivar' : 'Activar'}
                 </button>
                 {isAdmin && (
-                <button
-                  onClick={() => handleEdit(item)}
-                  className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
-                >
-                  ✏️
-                </button>
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    ✏️
+                  </button>
                 )}
                 {isAdmin && (
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors"
-                >
-                  🗑️
-                </button>
+                  <button
+                    onClick={() => handleDelete(item)}
+                    className="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    🗑️
+                  </button>
                 )}
               </div>
             </div>
@@ -227,7 +231,7 @@ const handleDelete = async (id: number) => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                   <input
-                  name="title"
+                    name="title"
                     type="text"
                     defaultValue={editingItem?.title || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -238,7 +242,7 @@ const handleDelete = async (id: number) => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                   <textarea
-                  name="description"
+                    name="description"
                     defaultValue={editingItem?.description || ''}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -250,7 +254,7 @@ const handleDelete = async (id: number) => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Precio (S/)</label>
                     <input
-                    name="price"
+                      name="price"
                       type="number"
                       step="0.10"
                       defaultValue={editingItem?.price ?? ''}
@@ -263,7 +267,7 @@ const handleDelete = async (id: number) => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
                   <select
-                  name="categoryId"
+                    name="categoryId"
                     defaultValue={editingItem?.category?.id ?? ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
@@ -276,7 +280,7 @@ const handleDelete = async (id: number) => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Emoji/Icono</label>
                   <input
-                  name="imageUrl"
+                    name="imageUrl"
                     type="text"
                     defaultValue={editingItem?.imageUrl || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -300,6 +304,55 @@ const handleDelete = async (id: number) => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">⚠️</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                ¿Eliminar este plato?
+              </h3>
+              <p className="text-gray-600">
+                Esta acción no se puede deshacer.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <img
+                  src={deletingItem.imageUrl || "/fallback.png"}
+                  alt={deletingItem.title}
+                  className="w-12 h-12 object-cover rounded-lg"
+                />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900">{deletingItem.title}</h4>
+                  <p className="text-sm text-gray-500">{deletingItem.category?.name}</p>
+                  <p className="text-orange-600 font-semibold">S/ {deletingItem.price.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeletingItem(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>
