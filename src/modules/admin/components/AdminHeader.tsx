@@ -14,7 +14,7 @@ export default function AdminHeader() {
     navigate('/login');
   };
 
-  const handleNotificationClick = (notificationId: string, orderId: number) => {
+  const handleNotificationClick = (notificationId: string) => {
     markAsRead(notificationId);
     setShowNotifications(false);
     navigate('/admin/orders');
@@ -81,7 +81,7 @@ export default function AdminHeader() {
                     notifications.map((notif) => (
                       <div
                         key={notif.id}
-                        onClick={() => handleNotificationClick(notif.id, notif.orderId)}
+                        onClick={() => handleNotificationClick(notif.id)}
                         className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition ${!notif.read ? 'bg-orange-50' : ''
                           }`}
                       >

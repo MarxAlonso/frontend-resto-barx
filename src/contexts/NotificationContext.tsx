@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { io, type Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 interface Notification {
     id: string;
@@ -37,7 +37,6 @@ interface NotificationProviderProps {
 
 export const NotificationProvider = ({ children }: NotificationProviderProps) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
         // Conectar al servidor Socket.IO
@@ -48,8 +47,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
             reconnectionAttempts: 5,
             reconnectionDelay: 1000
         });
-
-        setSocket(socketInstance);
 
         socketInstance.on('connect', () => {
             console.log('✅ Conectado a Socket.IO');
