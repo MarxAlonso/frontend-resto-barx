@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { io } from 'socket.io-client';
+import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
+import axios from 'axios';
 
 interface Notification {
     id: string;
@@ -37,40 +37,62 @@ interface NotificationProviderProps {
 
 export const NotificationProvider = ({ children }: NotificationProviderProps) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [seenOrderIds, setSeenOrderIds] = useState<Set<number>>(new Set());
+    const pollingIntervalRef = useRef<number | null>(null);
+
+    const fetchRecentOrders = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8089';
+            const response = await axios.get(`${API_URL}/api/orders/recent?minutes=10`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response.data.success) {
+                const newNotifications: Notification[] = response.data.data;
+
+                // Filtrar solo las notificaciones que no hemos visto antes
+                const unseenNotifications = newNotifications.filter(
+                    notif => !seenOrderIds.has(notif.orderId)
+                );
+
+                if (unseenNotifications.length > 0) {
+                    // Agregar las nuevas notificaciones al inicio
+                    setNotifications(prev => [...unseenNotifications, ...prev]);
+
+                    // Actualizar el conjunto de IDs vistos
+                    setSeenOrderIds(prev => {
+                        const newSet = new Set(prev);
+                        unseenNotifications.forEach(notif => newSet.add(notif.orderId));
+                        return newSet;
+                    });
+
+                    // Reproducir sonido solo para nuevas notificaciones
+                    playNotificationSound();
+                }
+            }
+        } catch (error) {
+            console.error('Error al obtener notificaciones:', error);
+        }
+    };
 
     useEffect(() => {
-        // Conectar al servidor Socket.IO
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8089';
-        const socketInstance = io(API_URL, {
-            transports: ['websocket', 'polling'],
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000
-        });
+        // Obtener notificaciones inmediatamente
+        fetchRecentOrders();
 
-        socketInstance.on('connect', () => {
-            console.log('✅ Conectado a Socket.IO');
-            // Unirse al room de administradores
-            socketInstance.emit('join-admin');
-        });
-
-        socketInstance.on('disconnect', () => {
-            console.log('❌ Desconectado de Socket.IO');
-        });
-
-        // Escuchar nuevas órdenes
-        socketInstance.on('new-order', (notification: Notification) => {
-            console.log('📢 Nueva orden recibida:', notification);
-            setNotifications(prev => [notification, ...prev]);
-
-            // Reproducir sonido de notificación (opcional)
-            playNotificationSound();
-        });
+        // Configurar polling cada 10 segundos
+        pollingIntervalRef.current = setInterval(fetchRecentOrders, 10000);
 
         return () => {
-            socketInstance.disconnect();
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+            }
         };
-    }, []);
+    }, [seenOrderIds]); // Dependencia en seenOrderIds para actualizar el intervalo
 
     const playNotificationSound = () => {
         try {
@@ -98,6 +120,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
     const clearNotifications = () => {
         setNotifications([]);
+        setSeenOrderIds(new Set());
     };
 
     const unreadCount = notifications.filter(n => !n.read).length;
