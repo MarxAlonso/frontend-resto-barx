@@ -46,7 +46,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
             if (!token) return;
 
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8089';
-            const response = await axios.get(`${API_URL}/api/orders/recent?minutes=10`, {
+            const response = await axios.get(`${API_URL}/orders/recent?minutes=10`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
